@@ -1,0 +1,21 @@
+import csv
+
+# Data to be written to the CSV file
+data = [
+    ["SI.no", "Name", "PID", "Price", "Sales", "SalesExpe", "Purchases", "PurchasesExpected"],
+    [1, "Shirt", 2323, 100, 500, 100, 750, 1500],
+    [2, "Pant", 3442, 150, 600, 1300, 800, 1400],
+    [3, "Jacket", 5645, 200, 700, 1400, 1000, 1250],
+    [4, "Frock", 8474, 50, 250, 700, 100, 500],
+    [5, "Dress", 2836, 125, 300, 500, 150, 400]
+]
+
+# Specify the file name
+filename = 'stock.csv'
+
+# Write data to CSV file
+with open(filename, 'w', newline='') as csvfile:
+    writer = csv.writer(csvfile)
+    writer.writerows(data)
+
+print(f'CSV file "{filename}" has been created successfully.')
