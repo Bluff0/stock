@@ -1,0 +1,225 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import os
+import csv
+
+def main_menu():
+    while True:
+        print('*********************** STOCK MANAGEMENT SYSTEM *************************')
+        print('''1: Stock Details
+2: Price Details
+3: Sales Visualisation
+4: Sales Comparison
+5: Purchase Visualisation
+6: Purchase Comparison
+7: Add New Product
+8: Update Stock Details
+9: Delete Product
+10: Exit''')
+        try:
+            choice = int(input("Enter Your Choice: "))
+        except ValueError:
+            print("Invalid input. Please enter a number.")
+            continue
+
+        if choice == 1:
+            stock_details()
+        elif choice == 2:
+            price_details()
+        elif choice == 3:
+            sales_visualisation()
+        elif choice == 4:
+            sales_comparison()
+        elif choice == 5:
+            purchase_visualisation()
+        elif choice == 6:
+            purchase_comparison()
+        elif choice == 7:
+            add_new_product()
+        elif choice == 8:
+            update_stock_details()
+        elif choice == 9:
+            delete_product()
+        elif choice == 10:
+            break
+        else:
+            print("Invalid choice. Please select a number between 1 and 10.")
+
+def stock_details():
+    print("Stock Details")
+    try:
+        details = pd.read_csv("stock.csv", usecols=['PID', 'Name', 'Sales', 'Purchases'])
+        print(details)
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def price_details():
+    print("Price Details")
+    try:
+        price = pd.read_csv("stock.csv", usecols=['PID', 'Name', 'Price'])
+        print(price)
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def sales_visualisation():
+    print("Sales Visualisation")
+    try:
+        sales = pd.read_csv("stock.csv", usecols=['Name', 'Sales'])
+        sales.plot(kind='bar', x='Name', y='Sales', color='blue')
+        plt.xlabel("Product")
+        plt.ylabel("Sales")
+        plt.title("Sales Visualisation")
+        plt.show()
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def sales_comparison():
+    print("Sales Comparison")
+    try:
+        sales_c = pd.read_csv("stock.csv", usecols=['Name', 'Sales', 'SalesExpected'])
+        plt.plot(sales_c['Name'], sales_c['Sales'], label='Sales')
+        plt.plot(sales_c['Name'], sales_c['SalesExpected'], label='Sales Expected')
+        plt.xlabel("Product")
+        plt.ylabel("Sales")
+        plt.title("Sales Comparison")
+        plt.legend()
+        plt.show()
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def purchase_visualisation():
+    print("Purchase Visualisation")
+    try:
+        purchase = pd.read_csv("stock.csv", usecols=['Name', 'Purchases'])
+        purchase.plot(kind='barh', x='Name', y='Purchases', color='c')
+        plt.xlabel("Purchase")
+        plt.ylabel("Product")
+        plt.title("Purchase Visualisation")
+        plt.show()
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def purchase_comparison():
+    print("Purchase Comparison")
+    try:
+        purchase = pd.read_csv("stock.csv", usecols=['Name', 'Purchases', 'PurchasesExpected'])
+        plt.plot(purchase['Name'], purchase['Purchases'], label='Purchases')
+        plt.plot(purchase['Name'], purchase['PurchasesExpected'], label='Purchases Expected')
+        plt.title("Purchase Comparison")
+        plt.xlabel("Product")
+        plt.ylabel("Purchases")
+        plt.legend()
+        plt.show()
+    except FileNotFoundError:
+        print("Stock file not found.")
+    input("To go back to Main Menu, enter any key: ")
+
+def add_new_product():
+    print("Add New Product")
+    try:
+        pid = int(input('Enter product ID: '))
+        name = input('Enter product Name: ')
+        price = float(input('Enter price: '))
+        sales = int(input('Enter Sales: '))
+        salesE = int(input('Enter expected sales: '))
+        purchase = int(input('Enter Purchase: '))
+        purchaseE = int(input('Enter expected purchase: '))
+
+        with open('stock.csv', 'a', newline='') as f:
+            s = csv.writer(f)
+            rec = [pid, name, price, sales, salesE, purchase, purchaseE]
+            s.writerow(rec)
+        print("Product Added")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    input("To go back to Main Menu, enter any key: ")
+
+def update_stock_details():
+    print("Update Stock Details")
+    temp_file = 'temp.csv'
+    try:
+        with open('stock.csv', 'r') as f, open(temp_file, 'w', newline='') as f1:
+            s = csv.reader(f)
+            s1 = csv.writer(f1)
+            r = input('Enter product ID to update: ')
+            
+            updated = False
+            for rec in s:
+                if rec[0] == r:
+                    print("Current Record:")
+                    print(f"Product Name = {rec[1]}")
+                    print(f"Price = {rec[2]}")
+                    print(f"Sales = {rec[3]}")
+                    print(f"Sales Expected = {rec[4]}")
+                    print(f"Purchase = {rec[5]}")
+                    print(f"Purchase Expected = {rec[6]}")
+
+                    if input("Do you want to modify this record (y/n)? ").lower() == 'y':
+                        sales = int(input('Enter new Sales: '))
+                        salesE = int(input('Enter new Sales Expected: '))
+                        purchase = int(input('Enter new Purchase: '))
+                        purchaseE = int(input('Enter new Purchase Expected: '))
+                        rec = [rec[0], rec[1], rec[2], sales, salesE, purchase, purchaseE]
+                        updated = True
+
+                s1.writerow(rec)
+            
+            if updated:
+                print("Stock Modified")
+            else:
+                print("No changes made")
+        
+        os.remove("stock.csv")
+        os.rename(temp_file, "stock.csv")
+    except FileNotFoundError:
+        print("Stock file not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    input("To go back to Main Menu, enter any key: ")
+
+def delete_product():
+    print("Delete Product")
+    temp_file = 'temp.csv'
+    try:
+        with open("stock.csv", 'r') as f, open(temp_file, 'w', newline='') as f1:
+            s = csv.reader(f)
+            s1 = csv.writer(f1)
+            r = input('Enter product ID to delete: ')
+            
+            deleted = False
+            for rec in s:
+                if rec[0] == r:
+                    print("Current Record:")
+                    print(f"Product Name = {rec[1]}")
+                    print(f"Price = {rec[2]}")
+                    print(f"Sales = {rec[3]}")
+                    print(f"Sales Expected = {rec[4]}")
+                    print(f"Purchase = {rec[5]}")
+                    print(f"Purchase Expected = {rec[6]}")
+
+                    if input("Do you want to delete this record (y/n)? ").lower() == 'y':
+                        deleted = True
+                        print("Record Deleted")
+                        continue  # Skip writing this record to temp file
+
+                s1.writerow(rec)
+            
+            if not deleted:
+                print("No record found or record not deleted")
+        
+        os.remove("stock.csv")
+        os.rename(temp_file, "stock.csv")
+    except FileNotFoundError:
+        print("Stock file not found.")
+    except Exception as e:
+        print(f"An error occurred: {e}")
+    input("To go back to Main Menu, enter any key: ")
+
+if __name__ == "__main__":
+    main_menu()
+
